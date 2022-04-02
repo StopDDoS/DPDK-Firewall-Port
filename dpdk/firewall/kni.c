@@ -287,13 +287,13 @@ kni_fwd_pkts_to_nic(struct worker_lc_cfg *lp, uint32_t burst)
 		}
 		for (i = 0; i < n_rx; i++) {
 			outbuf[i]->port = port;
-			outbuf[i]->udata64 |=
+			*RTE_MBUF_DYNFIELD(outbuf[i], meta_offset, uint64_t *) |=
 			    PKT_META_ROUTED | PKT_META_VLAN_TAG;
 		}
 
 		/* Burst packets to IO tx lcore */
 		n_tx = rte_ring_sp_enqueue_burst(
-		    lp->orings[port], (void **)outbuf, n_rx);
+		    lp->orings[port], (void **)outbuf, n_rx, NULL);
 
 		if (unlikely(n_tx < n_rx)) {
 			util_free_mbufs_burst(&outbuf[n_tx], n_rx - n_tx);

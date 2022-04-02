@@ -303,7 +303,7 @@ synauth_auth_ip(struct synauth_ctx *ctx, struct rte_mbuf *m)
 	/* Offload checksum calculations */
 	PKT_TCP_IP_TX_OFFLOAD(m, th);
 
-	m->udata64 |= PKT_META_ROUTED;
+	*RTE_MBUF_DYNFIELD(m, meta_offset, uint64_t *) |= PKT_META_ROUTED;
 
 	return 0;
 }
@@ -335,7 +335,7 @@ synauth_auth_ip6(struct synauth_ctx *ctx, struct rte_mbuf *m)
 	/* Swap source and destination ethernet addresses */
 	PKT_ETH_ADDR_SWAP(eh);
 
-	m->udata64 |= PKT_META_ROUTED;
+	*RTE_MBUF_DYNFIELD(m, meta_offset, uint64_t *) |= PKT_META_ROUTED;
 
 	return 0;
 }

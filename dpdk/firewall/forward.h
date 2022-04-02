@@ -66,7 +66,7 @@ __attribute__((always_inline))
 	int ret;
 	uint8_t port;
 
-	if (likely(!(m->udata64 & PKT_META_ROUTED))) {
+	if (likely(!(*RTE_MBUF_DYNFIELD(m, meta_offset, uint64_t *) & PKT_META_ROUTED))) {
 		struct rte_fixed_ether_hdr *eh;
 		struct ether_addr *ea;
 
@@ -88,7 +88,7 @@ __attribute__((always_inline))
 	port = m->port;
 
 	/* Request the NIC to place the vlan tag if required */
-	if (likely((m->udata64 & PKT_META_VLAN_TAG) == 0)) {
+	if (likely((*RTE_MBUF_DYNFIELD(m, meta_offset, uint64_t *) & PKT_META_VLAN_TAG) == 0)) {
 		m->ol_flags |= PKT_TX_VLAN_PKT;
 	}
 	burst = cfg.worker_write_burst_size;
@@ -102,7 +102,7 @@ __attribute__((always_inline))
 	ret = rte_ring_sp_enqueue_bulk(
 	    lp->orings[port],
 	    (void **)lp->obuf[port].array,
-	    burst);
+	    burst, NULL);
 
 	if (unlikely(ret == -ENOBUFS)) {
 		util_free_mbufs_burst(lp->obuf[port].array, n_mbufs);
@@ -133,7 +133,7 @@ __attribute__((always_inline))
 	ret = rte_ring_sp_enqueue_bulk(
 	    ring->ring,
 	    (void **)ring->obuf.array,
-	    burst);
+	    burst, NULL);
 
 	if (unlikely(ret == -ENOBUFS)) {
 		util_free_mbufs_burst(ring->obuf.array, n_mbufs);

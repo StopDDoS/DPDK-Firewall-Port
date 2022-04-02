@@ -357,9 +357,9 @@ ip_l4_hdr(struct rte_mbuf *m)
 static inline void *
 ip6_l4_hdr(struct rte_mbuf *m)
 {
-	assert(m->udata64 & PKT_META_PARSED);
+	assert(*RTE_MBUF_DYNFIELD(m, meta_offset, uint64_t *) & PKT_META_PARSED);
 
-	if (unlikely(m->udata64 & PKT_META_ALT_HDR)) {
+	if (unlikely(*RTE_MBUF_DYNFIELD(m, meta_offset, uint64_t *) & PKT_META_ALT_HDR)) {
 		struct mbuf_extra *me;
 
 		me = rte_pktmbuf_mtod_offset(m, struct mbuf_extra *,

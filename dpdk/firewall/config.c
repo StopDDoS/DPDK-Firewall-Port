@@ -269,7 +269,7 @@ parse_fw_lcore(config_setting_t * fwst, uint32_t id)
 {
 	struct lc_cfg *lcp;
 	unsigned int lcore, offload;
-	int bool;
+	int booleanint;
 
 	config_setting_lookup_int(fwst, "lcore", (int *)&lcore);
 	if (rte_lcore_is_enabled(lcore) == 0) {
@@ -291,8 +291,8 @@ parse_fw_lcore(config_setting_t * fwst, uint32_t id)
 	lcp->worker.type = WORKER_TYPE_FW;
 	lcp->worker.ol = offload;
 
-	config_setting_lookup_bool(fwst, "kni", &bool);
-	lcp->worker.ctrlplane = bool;
+	config_setting_lookup_bool(fwst, "kni", &booleanint);
+	lcp->worker.ctrlplane = booleanint;
 
 	return 0;
 }
@@ -303,7 +303,7 @@ parse_kni_lcore(config_setting_t * knist, uint32_t id)
 	struct lc_cfg *lcp;
 	config_setting_t *setting;
 	unsigned int lcore, i, count;
-	int bool;
+	int booleanint;
 
 	config_setting_lookup_int(knist, "lcore", (int *)&lcore);
 	if (rte_lcore_is_enabled(lcore) == 0) {
@@ -320,8 +320,8 @@ parse_kni_lcore(config_setting_t * knist, uint32_t id)
 	lcp->worker.id = id;
 	lcp->worker.type = WORKER_TYPE_CTRL_KNI;
 
-	config_setting_lookup_bool(knist, "master", &bool);
-	lcp->worker.kni.is_master = bool;
+	config_setting_lookup_bool(knist, "master", &booleanint);
+	lcp->worker.kni.is_master = booleanint;
 
 	setting = config_setting_get_member(knist, "ports");
 	count = config_setting_length(setting);

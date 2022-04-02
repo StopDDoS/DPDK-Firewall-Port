@@ -1,3 +1,14 @@
 Just prototyping some network stuff.
 
 He be dragons: the code has not seen any kind of review (security or other).
+
+requirements for compilation:
+
+- openssl
+- liburcu-dev
+- libconfig-dev
+
+- dpdk
+
+
+program does not compile for dpdk-21 at the moment, beware

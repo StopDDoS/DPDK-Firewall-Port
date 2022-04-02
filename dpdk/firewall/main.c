@@ -47,8 +47,7 @@
 
 void usage(const char *);
 
-void
-usage(const char *name)
+void usage(const char *name)
 {
 	fprintf(stderr, "usage: %s: <config>\n", name);
 }
@@ -56,7 +55,8 @@ usage(const char *name)
 static void
 hup_signal_handler(int signum __attribute__((unused)))
 {
-	if (reload_fw != 0) {
+	if (reload_fw != 0)
+	{
 		return;
 	}
 	reload_fw = 1;
@@ -65,7 +65,8 @@ hup_signal_handler(int signum __attribute__((unused)))
 static void
 usr1_signal_handler(int signum __attribute__((unused)))
 {
-	if (dump_fw_counters != 0) {
+	if (dump_fw_counters != 0)
+	{
 		return;
 	}
 	dump_fw_counters = 1;
@@ -81,28 +82,38 @@ install_signal_handlers(void)
 	sa.sa_handler = hup_signal_handler;
 	sa.sa_flags = SA_RESTART;
 	sigfillset(&sa.sa_mask);
-	if (sigaction(SIGHUP, &sa, NULL) != 0) {
+	if (sigaction(SIGHUP, &sa, NULL) != 0)
+	{
 		RTE_LOG(CRIT, USER1, "Error registering SIGHUP handler\n");
 		return -1;
 	}
 	sa.sa_handler = usr1_signal_handler;
-	if (sigaction(SIGUSR1, &sa, NULL) != 0) {
+	if (sigaction(SIGUSR1, &sa, NULL) != 0)
+	{
 		RTE_LOG(CRIT, USER1, "Error registering SIGUSR1 handler\n");
 		return -1;
 	}
 	/* block (ignore) sigpipes for this and all the child threads */
 	sigemptyset(&set);
 	sigaddset(&set, SIGPIPE);
-	if (pthread_sigmask(SIG_BLOCK, &set, NULL) != 0) {
+	if (pthread_sigmask(SIG_BLOCK, &set, NULL) != 0)
+	{
 		RTE_LOG(CRIT, USER1, "Error setting signal mask\n");
 		return -1;
 	}
 	return 0;
 }
 
-int
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
+	meta_offset = rte_mbuf_dynfield_register(&rte_mbuf_dynfield_metadata);
+
+	// Negative offset is an error
+	if (meta_offset < 0)
+	{
+		printf("could not register metadata dynfield.");
+	}
+
 	uint32_t lcore;
 	int ret;
 
@@ -114,17 +125,20 @@ main(int argc, char *argv[])
 	argv += ret;
 
 	/* Parse configuration file */
-	if (argc < 2) {
+	if (argc < 2)
+	{
 		usage(argv[0]);
 		return -1;
 	}
 	ret = cfg_parse_file(argv[1]);
-	if (ret < 0) {
+	if (ret < 0)
+	{
 		fprintf(stderr, "Could not parse configuration file [%s]\n",
-		    argv[1]);
+				argv[1]);
 		return ret;
 	}
-	if ((ret = install_signal_handlers()) != 0) {
+	if ((ret = install_signal_handlers()) != 0)
+	{
 		return ret;
 	}
 	/* Initialize the application */
@@ -132,9 +146,11 @@ main(int argc, char *argv[])
 	cfg_print_settings();
 
 	/* Launch per-lcore init on every lcore */
-	rte_eal_mp_remote_launch(lcore_main_loop, NULL, CALL_MASTER);
-	RTE_LCORE_FOREACH_SLAVE(lcore) {
-		if (rte_eal_wait_lcore(lcore) < 0) {
+	rte_eal_mp_remote_launch(lcore_main_loop, NULL, CALL_MAIN);
+	RTE_LCORE_FOREACH_WORKER(lcore)
+	{
+		if (rte_eal_wait_lcore(lcore) < 0)
+		{
 			return -1;
 		}
 	}

@@ -349,19 +349,19 @@ setup_ip_acl_data(struct rte_mbuf **mr, struct fw_ctx *ctx)
 
 		switch (ctx->cfg->ol) {
 		case WORKER_OL_PROV:
-			m->udata64 |= PKT_META_OL_IP;
-			udata64 = m->udata64;
+			*RTE_MBUF_DYNFIELD(m, meta_offset, uint64_t *) |= PKT_META_OL_IP;
+			udata64 = *RTE_MBUF_DYNFIELD(m, meta_offset, uint64_t *);
 
 			if ((m = frag_ip_reass(&ctx->frag, ih, m)) == NULL) {
 				break;
 			}
 			ehp = rte_pktmbuf_mtod(m, uint8_t *);
 			*mr = m;
-			m->udata64 = udata64;
+			*RTE_MBUF_DYNFIELD(m, meta_offset, uint64_t *) = udata64;
 			break;
 
 		case WORKER_OL_CLNT:
-			m->udata64 |= PKT_META_OL_IP;
+			*RTE_MBUF_DYNFIELD(m, meta_offset, uint64_t *) |= PKT_META_OL_IP;
 			/* Offload fragment to offloader cores */
 			fwd_ol_pkt(m, ctx->cfg);
 			break;
@@ -389,7 +389,7 @@ build_alt_ip6_hdr(struct rte_mbuf *m, uint32_t exthdrs, uint8_t *l4hdr,
 	hdr += ETH_HEAD_OFF;
 
 	if (l4hdr != NULL) {
-		m->udata64 |= PKT_META_ALT_HDR;
+		*RTE_MBUF_DYNFIELD(m, meta_offset, uint64_t *) |= PKT_META_ALT_HDR;
 		extra->l4hdr = l4hdr;
 		althdr = extra->hdrs;
 		rte_memcpy(althdr, hdr, sizeof(struct ipv6_hdr));
@@ -397,7 +397,7 @@ build_alt_ip6_hdr(struct rte_mbuf *m, uint32_t exthdrs, uint8_t *l4hdr,
 		((struct ipv6_hdr *)althdr)->proto = l4proto;
 
 	} else if (exthdrs & IP6_EH_FRAGMENT) {
-		m->udata64 |= PKT_META_ALT_HDR;
+		*RTE_MBUF_DYNFIELD(m, meta_offset, uint64_t *) |= PKT_META_ALT_HDR;
 		extra->l4hdr = NULL;
 		althdr = extra->hdrs;
 		rte_memcpy(althdr, hdr, sizeof(struct ipv6_hdr));
@@ -441,20 +441,20 @@ setup_ip6_acl_data(struct rte_mbuf **mr, struct fw_ctx *ctx)
 	uint64_t udata64;
 
 	case WORKER_OL_PROV:
-		m->udata64 |= PKT_META_OL_IP6;
-		udata64 = m->udata64;
+		*RTE_MBUF_DYNFIELD(m, meta_offset, uint64_t *) |= PKT_META_OL_IP6;
+		udata64 = *RTE_MBUF_DYNFIELD(m, meta_offset, uint64_t *);
 
 		if ((m = frag_ip6_reass(&ctx->frag, m)) == NULL) {
 			return NULL;
 		}
 		*mr = m;
-		m->udata64 = udata64;
+		*RTE_MBUF_DYNFIELD(m, meta_offset, uint64_t *) = udata64;
 
 		return setup_ip6_acl_data(mr, ctx);
 		break;
 
 	case WORKER_OL_CLNT:
-		m->udata64 |= PKT_META_OL_IP6;
+		*RTE_MBUF_DYNFIELD(m, meta_offset, uint64_t *) |= PKT_META_OL_IP6;
 		/* Offload fragment to offloader cores */
 		fwd_ol_pkt(m, ctx->cfg);
 		break;
@@ -499,7 +499,7 @@ setup_pkt_acl(struct rte_mbuf *m, struct fw_ctx *ctx)
 	if (ptype & RTE_PTYPE_L3_IPV4) {
 		data = setup_ip_acl_data(&m, ctx);
 		if (unlikely(data == NULL)) {
-			if (m->udata64 & PKT_META_OL) {
+			if (*RTE_MBUF_DYNFIELD(m, meta_offset, uint64_t *) & PKT_META_OL) {
 				RTE_LOG(DEBUG, ACL, "reassembling packet");
 			} else {
 				pkt_dump(m, "dropping packet: ");
@@ -510,13 +510,13 @@ setup_pkt_acl(struct rte_mbuf *m, struct fw_ctx *ctx)
 		acl->ip_data[acl->n_ip] = data;
 		acl->ip_m[acl->n_ip] = m;
 		acl->n_ip++;
-		m->udata64 |= PKT_META_PARSED;
+		*RTE_MBUF_DYNFIELD(m, meta_offset, uint64_t *) |= PKT_META_PARSED;
 
 	} else if (ptype & RTE_PTYPE_L3_IPV6) {
 		/* Header processing */
 		data = setup_ip6_acl_data(&m, ctx);
 		if (unlikely(data == NULL)) {
-			if (m->udata64 & PKT_META_OL) {
+			if (*RTE_MBUF_DYNFIELD(m, meta_offset, uint64_t *) & PKT_META_OL) {
 				RTE_LOG(DEBUG, ACL, "reassembling packet");
 			} else {
 				pkt_dump(m, "dropping packet: ");
@@ -527,7 +527,7 @@ setup_pkt_acl(struct rte_mbuf *m, struct fw_ctx *ctx)
 		acl->ip6_data[acl->n_ip6] = data;
 		acl->ip6_m[acl->n_ip6] = m;
 		acl->n_ip6++;
-		m->udata64 |= PKT_META_PARSED;
+		*RTE_MBUF_DYNFIELD(m, meta_offset, uint64_t *) |= PKT_META_PARSED;
 
 	} else {
 		/* We only filter IPv4 and IPv6 for now. */
@@ -663,7 +663,7 @@ synauth_ol(struct fw_ctx *ctx, struct rte_mbuf **pkts, uint32_t n_pkts)
 	for (i = 0; i < n_pkts; i++) {
 		action = _ACT_IGNORE;
 
-		if (pkts[i]->udata64 & PKT_META_SYNAUTH_IP) {
+		if (*RTE_MBUF_DYNFIELD(pkts[i], meta_offset, uint64_t *) & PKT_META_SYNAUTH_IP) {
 			th = ip_l4_hdr(pkts[i]);
 			n_sa++;
 
@@ -679,7 +679,7 @@ synauth_ol(struct fw_ctx *ctx, struct rte_mbuf **pkts, uint32_t n_pkts)
 				    _ACT_FORWARD : _ACT_DROP;
 			}
 
-		} else if (pkts[i]->udata64 & PKT_META_SYNAUTH_IP6) {
+		} else if (*RTE_MBUF_DYNFIELD(pkts[i], meta_offset, uint64_t *) & PKT_META_SYNAUTH_IP6) {
 			th = ip6_l4_hdr(pkts[i]);
 			n_sa++;
 
@@ -722,10 +722,10 @@ handle_synauth_ol(struct worker_lc_cfg *lp, struct rte_mbuf *m)
 	if (sa == SYNAUTH_OK) {
 		fwd_nic_pkt(m, lp);
 	} else if (sa == SYNAUTH_IP_AUTH){
-		m->udata64 |= PKT_META_SYNAUTH_IP;
+		*RTE_MBUF_DYNFIELD(m, meta_offset, uint64_t *) |= PKT_META_SYNAUTH_IP;
 		synauth_ol(lp->fw.ctx, &m, 1);
 	} else if (sa == SYNAUTH_IP6_AUTH){
-		m->udata64 |= PKT_META_SYNAUTH_IP6;
+		*RTE_MBUF_DYNFIELD(m, meta_offset, uint64_t *) |= PKT_META_SYNAUTH_IP6;
 		synauth_ol(lp->fw.ctx, &m, 1);
 	} else {
 		rte_pktmbuf_free(m);
@@ -748,7 +748,7 @@ handle_synauth_acl(struct worker_lc_cfg *lp, struct rte_mbuf *m)
 	case RTE_PTYPE_L3_IPV4:
 		th = ip_l4_hdr(m);
 		if (th->tcp_flags & (TH_SYN|TH_RST)) {
-			m->udata64 |= PKT_META_SYNAUTH_IP;
+			*RTE_MBUF_DYNFIELD(m, meta_offset, uint64_t *) |= PKT_META_SYNAUTH_IP;
 			fwd_ol_pkt(m, lp);
 			return;
 		}
@@ -756,7 +756,7 @@ handle_synauth_acl(struct worker_lc_cfg *lp, struct rte_mbuf *m)
 	case RTE_PTYPE_L3_IPV6:
 		th = ip6_l4_hdr(m);
 		if (th->tcp_flags & (TH_SYN|TH_RST)) {
-			m->udata64 |= PKT_META_SYNAUTH_IP6;
+			*RTE_MBUF_DYNFIELD(m, meta_offset, uint64_t *) |= PKT_META_SYNAUTH_IP6;
 			fwd_ol_pkt(m, lp);
 			return;
 		}
@@ -782,7 +782,7 @@ fwd_acl_pkt(struct worker_lc_cfg *lp, struct rte_mbuf *m, uint32_t res)
 	}
 	if (res & ACL_ACTION_ACCEPT) {
 		if (unlikely(rt_is_local(m))) {
-			m->udata64 |= PKT_META_LOCAL;
+			*RTE_MBUF_DYNFIELD(m, meta_offset, uint64_t *) |= PKT_META_LOCAL;
 			fwd_ctrl_pkt(m, lp);
 		} else {
 			if (res & ACL_ACTION_SYNAUTH) {
@@ -803,7 +803,7 @@ fwd_pkt(struct worker_lc_cfg *lp, struct rte_mbuf *pkt)
 	if (likely(!rt_is_local(pkt))) {
 		fwd_nic_pkt(pkt, lp);
 	} else {
-		pkt->udata64 |= PKT_META_LOCAL;
+		*RTE_MBUF_DYNFIELD(pkt, meta_offset, uint64_t *) |= PKT_META_LOCAL;
 		fwd_ctrl_pkt(pkt, lp);
 	}
 }

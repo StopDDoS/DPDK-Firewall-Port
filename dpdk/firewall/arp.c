@@ -115,7 +115,7 @@ update_from_arp(const struct rte_mbuf *m, const uint8_t *data, uint64_t now)
 static struct gw_addr *
 update_from_ip(const struct rte_mbuf *m, const uint8_t *data, uint64_t now)
 {
-	const struct ether_hdr *eh;
+	const struct rte_fixed_ether_hdr *eh;
 	const struct ipv4_hdr *ih;
 	struct gw_addr *gwa;
 
@@ -188,7 +188,7 @@ create_request(in_addr_t ip, uint16_t vlan)
 	m->port = 0;
 
 	/* Let the forwarding code know that no routing decision is required */
-	m->udata64 = PKT_META_ROUTED;
+	*RTE_MBUF_DYNFIELD(m, meta_offset, uint64_t *) = PKT_META_ROUTED;
 
 	return m;
 }
@@ -199,7 +199,7 @@ arp_chk_gw_pkt(struct rte_mbuf *m, uint64_t now)
 	if (PKT_TYPE(m) == RTE_PTYPE_L2_ETHER_ARP) {
 		return update_from_arp(m, rte_pktmbuf_mtod(m, uint8_t *), now);
 	}
-	if ((m->udata64 & PKT_META_LOCAL) && PKT_TYPE(m) == RTE_PTYPE_L3_IPV4) {
+	if ((*RTE_MBUF_DYNFIELD(m, meta_offset, uint64_t *) & PKT_META_LOCAL) && PKT_TYPE(m) == RTE_PTYPE_L3_IPV4) {
 		return update_from_ip(m, rte_pktmbuf_mtod(m, uint8_t *), now);
 	}
 	return NULL;
