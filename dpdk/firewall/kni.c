@@ -147,7 +147,7 @@ kni_change_mtu(uint8_t port_id, unsigned int new_mtu)
 
 	rte_memcpy(&conf, &port_conf, sizeof(conf));
 	/* Set new MTU */
-	if (new_mtu > ETHER_MAX_LEN)
+	if (new_mtu > RTE_ETHER_MAX_LEN)
 		conf.rxmode.jumbo_frame = 1;
 	else
 		conf.rxmode.jumbo_frame = 0;

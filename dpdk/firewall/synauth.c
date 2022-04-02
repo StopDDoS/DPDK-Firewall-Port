@@ -278,7 +278,7 @@ done:
 int
 synauth_auth_ip(struct synauth_ctx *ctx, struct rte_mbuf *m)
 {
-	struct ether_hdr *eh;
+	struct rte_fixed_ether_hdr *eh;
 	struct ipv4_hdr *ih;
 	struct tcp_hdr *th;
 	uint32_t aux;
@@ -311,7 +311,7 @@ synauth_auth_ip(struct synauth_ctx *ctx, struct rte_mbuf *m)
 int
 synauth_auth_ip6(struct synauth_ctx *ctx, struct rte_mbuf *m)
 {
-	struct ether_hdr *eh;
+	struct rte_fixed_ether_hdr *eh;
 	struct ipv6_hdr *ih;
 	struct tcp_hdr *th;
 	struct in6_addr ipa;

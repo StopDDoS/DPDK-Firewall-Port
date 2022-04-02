@@ -145,7 +145,7 @@ create_request(in_addr_t ip, uint16_t vlan)
 {
 	struct rte_mbuf *m;
 	struct rte_mempool *pool;
-	struct ether_hdr *eh;
+	struct rte_fixed_ether_hdr *eh;
 	struct ether_arp *ah;
 	uint8_t *data;
 	static struct ether_addr brd = {

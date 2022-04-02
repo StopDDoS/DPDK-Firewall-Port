@@ -43,7 +43,7 @@
 #include <rte_ethdev.h>
 #include <rte_pci.h>
 #include <rte_mbuf.h>
-#include <exec-env/rte_kni_common.h>
+#include <rte_kni.h>
 #include <rte_kni.h>
 
 #include "main.h"

@@ -51,19 +51,19 @@ pkt_type(struct rte_mbuf *m)
 	etype = _ntohs(eth_hdr->ether_type);
 	for (i = 0; i < 2; i++) {
 		switch (etype) {
-		case ETHER_TYPE_IPv4:
+		case RTE_ETHER_TYPE_IPV4:
 			m->packet_type |= RTE_PTYPE_L3_IPV4;
 			return m->packet_type;
-		case ETHER_TYPE_IPv6:
+		case RTE_ETHER_TYPE_IPV6:
 			m->packet_type |= RTE_PTYPE_L3_IPV6;
 			return m->packet_type;
 		case ETHER_TYPE_ARP:
 			m->packet_type |= RTE_PTYPE_L2_ETHER_ARP;
 			return m->packet_type;
-		case ETHER_TYPE_RARP:
+		case RTE_ETHER_TYPE_RARP:
 			m->packet_type |= RTE_PTYPE_L2_ETHER_ARP;
 			return m->packet_type;
-		case ETHER_TYPE_VLAN:
+		case RTE_ETHER_TYPE_VLAN:
 			RTE_LOG(
 			    WARNING,
 			    USER1,
@@ -105,7 +105,7 @@ pkt_ether_arp_hdr(const struct rte_mbuf *m, const uint8_t *data)
 	 * input. Later we cast the data buffer to an ether arp struct
 	 */
 	hlen += 2 * (ar->ar_hln + ar->ar_pln);
-	if (dlen < hlen || _ntohs(ar->ar_pro) != ETHER_TYPE_IPv4) {
+	if (dlen < hlen || _ntohs(ar->ar_pro) != RTE_ETHER_TYPE_IPV4) {
 		return NULL;
 	}
 	return (const struct ether_arp *)ar;
@@ -134,10 +134,10 @@ pkt_ip_hdr(struct rte_mbuf *m, const uint8_t *data)
 void
 pkt_dump(const struct rte_mbuf *m, const char *prefix)
 {
-	struct ether_hdr *eh;
+	struct rte_fixed_ether_hdr *eh;
 	uint8_t *data, proto;
 	char saddr[INET6_ADDRSTRLEN], daddr[INET6_ADDRSTRLEN];
-	char smac[ETHER_ADDR_FMT_SIZE], dmac[ETHER_ADDR_FMT_SIZE];
+	char smac[RTE_ETHER_ADDR_FMT_SIZE], dmac[RTE_ETHER_ADDR_FMT_SIZE];
 
 	data = rte_pktmbuf_mtod(m, uint8_t *);
 	eh = (struct ether_hdr *)data;
@@ -193,7 +193,7 @@ pkt_add_vlan_hdr(struct rte_mbuf *m)
 		eh = (struct ether_hdr *)data;
 		vh = (struct vlan_hdr *)hole;
 		vh->eth_proto = eh->ether_type;
-		eh->ether_type = _htons(ETHER_TYPE_VLAN);
+		eh->ether_type = _htons(RTE_ETHER_TYPE_VLAN);
 		vh->vlan_tci = _htons(m->vlan_tci);
 
 		m->data_len += sizeof(struct vlan_hdr);

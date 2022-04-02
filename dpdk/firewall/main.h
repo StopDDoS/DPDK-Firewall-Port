@@ -35,6 +35,27 @@
 #ifndef _MAIN_H_
 #define _MAIN_H_
 
+/*
+Porting to dpdk 21
+*/
+#define ipv6_hdr rte_ipv6_hdr
+#define ether_addr rte_ether_addr
+#define ether_hdr rte_ether_hdr
+#define ipv4_hdr rte_ipv4_hdr
+#define tcp_hdr rte_tcp_hdr
+#define ETHER_TYPE_ARP RTE_ETHER_TYPE_ARP
+#define ETHER_ADDR_LEN RTE_ETHER_ADDR_LEN
+#define vlan_hdr rte_vlan_hdr
+
+
+struct rte_fixed_ether_hdr {
+	struct rte_ether_addr d_addr; /**< Destination address. */
+	struct rte_ether_addr s_addr; /**< Source address. */
+	uint16_t ether_type; /**< Frame type. */
+} __rte_aligned(2);
+
+
+
 #include <stdint.h>
 #include <netinet/in.h>
 

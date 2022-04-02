@@ -43,7 +43,7 @@
 #include <rte_ethdev.h>
 #include <rte_pci.h>
 #include <rte_mbuf.h>
-#include <exec-env/rte_kni_common.h>
+#include <rte_kni.h>
 #include <rte_kni.h>
 
 #include "util.h"
@@ -67,7 +67,7 @@ __attribute__((always_inline))
 	uint8_t port;
 
 	if (likely(!(m->udata64 & PKT_META_ROUTED))) {
-		struct ether_hdr *eh;
+		struct rte_fixed_ether_hdr *eh;
 		struct ether_addr *ea;
 
 		eh = rte_pktmbuf_mtod(m, struct ether_hdr *);
