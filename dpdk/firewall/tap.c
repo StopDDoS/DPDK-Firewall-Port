@@ -136,7 +136,7 @@ tap_fwd_pkts_to_kernel(struct worker_lc_cfg *lp, uint32_t burst)
 		ssize_t ret;
 		int fd;
 
-		n_rx = rte_ring_sc_dequeue_burst(iring, (void **)ibuf, burst);
+		n_rx = rte_ring_sc_dequeue_burst(iring, (void **)ibuf, burst, NULL);
 		if (unlikely(n_rx > burst)) {
 			RTE_LOG(CRIT, USER1, "TAP: error receiving on ring!\n");
 			return n_rx;

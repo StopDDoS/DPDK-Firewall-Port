@@ -168,7 +168,7 @@ create_request(in_addr_t ip, uint16_t vlan)
 
 	/* ARP header */
 	ah->ea_hdr.ar_hrd = _htons(ARPHRD_ETHER);
-	ah->ea_hdr.ar_pro = _htons(ETHER_TYPE_IPv4);
+	ah->ea_hdr.ar_pro = _htons(RTE_ETHER_TYPE_IPV4);
 	ah->ea_hdr.ar_hln = ETHER_ADDR_LEN;
 	ah->ea_hdr.ar_pln = sizeof(struct in_addr);
 	ah->ea_hdr.ar_op = _htons(ARPOP_REQUEST);

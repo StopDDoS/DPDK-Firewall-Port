@@ -103,7 +103,7 @@ util_flush_sp_ring_buffer(struct rte_ring *ring, struct mbuf_array *buffer)
 	unsigned n_tx;
 
 	n_tx = rte_ring_sp_enqueue_burst(ring, (void **)buffer->array,
-	    buffer->n_mbufs);
+	    buffer->n_mbufs, NULL);
 	if (unlikely(n_tx < buffer->n_mbufs)) {
 		util_free_mbufs_burst(&buffer->array[n_tx],
 		    buffer->n_mbufs - n_tx);
@@ -117,7 +117,7 @@ util_flush_mp_ring_buffer(struct rte_ring *ring, struct mbuf_array *buffer)
 	unsigned n_tx;
 
 	n_tx = rte_ring_mp_enqueue_burst(ring, (void **)buffer->array,
-	    buffer->n_mbufs);
+	    buffer->n_mbufs, NULL);
 	if (unlikely(n_tx < buffer->n_mbufs)) {
 		util_free_mbufs_burst(&buffer->array[n_tx],
 		    buffer->n_mbufs - n_tx);

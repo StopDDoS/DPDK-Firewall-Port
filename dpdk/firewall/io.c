@@ -238,7 +238,7 @@ tx_nic_pkts(struct io_lc_cfg *lp, uint32_t n_workers,
 			n_pkts = rte_ring_sc_dequeue_burst(
 			    ring,
 			    (void **)&lp->tx.obuf[port].array[n_mbufs],
-			    r_burst);
+			    r_burst, NULL);
 
 			if (unlikely(n_pkts == 0)) {
 				continue;

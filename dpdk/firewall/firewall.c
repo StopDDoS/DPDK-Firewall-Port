@@ -916,7 +916,7 @@ input(struct fw_ctx *ctx, uint32_t burst, uint32_t ring_n)
 	pkts = ctx->cfg->ibuf.array;
 	ring = ctx->cfg->irings[ring_n];
 
-	n_rx = rte_ring_sc_dequeue_burst(ring, (void **)pkts, burst);
+	n_rx = rte_ring_sc_dequeue_burst(ring, (void **)pkts, burst, NULL);
 	if (unlikely(n_rx > burst)) {
 		RTE_LOG(CRIT, USER1, "FW: error receiving from ring!\n");
 		return 0;
@@ -941,7 +941,7 @@ input_ol(struct fw_ctx *ctx, uint32_t burst, uint32_t ring_n)
 	pkts = ctx->cfg->ibuf.array;
 	ring = ctx->cfg->irings[ring_n];
 
-	n_rx = rte_ring_sc_dequeue_burst(ring, (void **)pkts, burst);
+	n_rx = rte_ring_sc_dequeue_burst(ring, (void **)pkts, burst, NULL);
 	if (unlikely(n_rx > burst)) {
 		RTE_LOG(CRIT, USER1, "FW: error receiving from ring!\n");
 		return 0;

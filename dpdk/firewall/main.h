@@ -48,13 +48,6 @@ Porting to dpdk 21
 #define vlan_hdr rte_vlan_hdr
 
 
-struct rte_fixed_ether_hdr {
-	struct rte_ether_addr d_addr; /**< Destination address. */
-	struct rte_ether_addr s_addr; /**< Source address. */
-	uint16_t ether_type; /**< Frame type. */
-} __rte_aligned(2);
-
-
 
 #include <stdint.h>
 #include <netinet/in.h>
@@ -63,6 +56,12 @@ struct rte_fixed_ether_hdr {
 #include <rte_config.h>
 #include <rte_ether.h>
 #include <rte_mempool.h>
+
+struct rte_fixed_ether_hdr {
+	struct rte_ether_addr d_addr; /**< Destination address. */
+	struct rte_ether_addr s_addr; /**< Source address. */
+	unsigned short int ether_type; /**< Frame type. */
+} __rte_aligned(2);
 
 /* Processor sockets */
 #ifndef MAX_SOCKETS

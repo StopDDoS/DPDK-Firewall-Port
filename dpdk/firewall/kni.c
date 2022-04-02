@@ -208,7 +208,7 @@ kni_fwd_pkts_to_kernel(struct worker_lc_cfg *lp, uint32_t burst)
 		struct rte_mbuf **ibuf = lp->ibuf.array;
 		uint32_t base, cur, n_rx, n_tx, port;
 
-		n_rx = rte_ring_sc_dequeue_burst(iring, (void **)ibuf, burst);
+		n_rx = rte_ring_sc_dequeue_burst(iring, (void **)ibuf, burst, NULL);
 		if (unlikely(n_rx > burst)) {
 			RTE_LOG(CRIT, USER1, "KNI: error receiving on ring!\n");
 			return n_pkts;
