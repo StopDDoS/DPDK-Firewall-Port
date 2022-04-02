@@ -86,17 +86,31 @@
 #include "main.h"
 #include "util.h"
 
+// REF https://stackoverflow.com/questions/63659514/how-dpdk-disable-crc-strip-header-split-ip-checksum-offload-and-jumbo
 struct rte_eth_conf port_conf = {
 	.rxmode = {
 		.mq_mode = ETH_MQ_RX_RSS,
-		.max_rx_pkt_len = RTE_ETHER_MAX_LEN,
+		.offloads = (
+
+/*
+TODO: JUMBOFRAME offloading seems to be undefined, check!
+*/
+//			DEV_RX_OFFLOAD_JUMBO_FRAME |
+
+			RTE_ETH_RX_OFFLOAD_IPV4_CKSUM |
+		//	RTE_ETH_RX_OFFLOAD_VLAN_FILTER | 
+			RTE_ETH_RX_OFFLOAD_VLAN_STRIP
+		//	DEV_RX_OFFLOAD_JUMBO_FRAME |
+		//	 DEV_RX_OFFLOAD_KEEP_CRC
+		),
+	//	.max_rx_pkt_len = RTE_ETHER_MAX_LEN,
 		.split_hdr_size = 0,
-		.header_split = 0,	/**< Header Split disabled */
-		.hw_ip_checksum = 1,	/**< IP checksum offload enabled */
-		.hw_vlan_filter = 0,	/**< VLAN filtering disabled */
-		.hw_vlan_strip = 1,	/**< VLAN offload enabled */
-		.jumbo_frame = 0,	/**< Jumbo Frame Support disabled */
-		.hw_strip_crc = 0,	/**< CRC stripped by hardware */
+		// .header_split = 0,	/**< Header Split disabled */
+		// .hw_ip_checksum = 1,	/**< IP checksum offload enabled */
+		// .hw_vlan_filter = 0,	/**< VLAN filtering disabled */
+		// .hw_vlan_strip = 1,	/**< VLAN offload enabled */
+		// .jumbo_frame = 0,	/**< Jumbo Frame Support disabled */
+		// .hw_strip_crc = 0,	/**< CRC stripped by hardware */
 	},
 	.rx_adv_conf = {
 		.rss_conf = {
@@ -165,7 +179,7 @@ init_ol_mbuf_pools(void)
 	nb_mbuf =
 	    RTE_MAX(cfg.frag_max_flow_num, 2 * cfg.io_rx_read_burst_size) *
 	    MAX_FRAG_NUM;
-	nb_mbuf *= (port_conf.rxmode.max_rx_pkt_len + BUF_SIZE - 1) / BUF_SIZE;
+	nb_mbuf *= (port_conf.rxmode.mtu + BUF_SIZE - 1) / BUF_SIZE;
 	nb_mbuf *= 2;	/* IPv4 and IPv6 */
 	nb_mbuf = RTE_MAX(nb_mbuf, (uint32_t)MEMPOOL_BUFFERS);
 
@@ -555,7 +569,8 @@ init_bond_slaves(uint8_t port)
 		txconf = &dev_info.default_txconf;
 
 		/* Enable VLAN offloading */
-		txconf->txq_flags &= ~ETH_TXQ_FLAGS_NOVLANOFFL;
+		txconf->offloads |= RTE_ETH_TX_OFFLOAD_VLAN_INSERT;
+		//txconf->txq_flags &= ~ETH_TXQ_FLAGS_NOVLANOFFL;
 		ret = rte_eth_tx_queue_setup(
 		    slave,
 		    0,
@@ -659,7 +674,8 @@ init_ifaces(void)
 		txconf = &dev_info.default_txconf;
 
 		/* Enable VLAN offloading */
-		txconf->txq_flags &= ~ETH_TXQ_FLAGS_NOVLANOFFL;
+		//RTE_ETH_TX_OFFLOAD_VLAN_INSERT
+		txconf->offloads |= RTE_ETH_TX_OFFLOAD_VLAN_INSERT;
 
 		if (cfg.ifaces[port].flags & NIC_FLAG_TX_ON) {
 			cfg_lcore_for_nic_tx(port, &lcore);

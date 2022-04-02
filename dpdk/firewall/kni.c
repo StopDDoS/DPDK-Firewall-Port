@@ -42,6 +42,8 @@
 #include <unistd.h>
 #include <signal.h>
 
+#include <rte_bus_pci.h>
+
 #include "main.h"
 #include "util.h"
 #include "runtime.h"
@@ -72,14 +74,25 @@ kni_alloc_port(uint8_t port, struct lc_cfg *lcp)
 	conf.group_id = port;
 	conf.mbuf_size = MBUF_SIZE;
 
+#define RTE_DEV_TO_PCI(ptr) container_of(ptr, struct rte_pci_device, device)
+
+	// ref https://stackoverflow.com/questions/54049208/how-do-i-obtain-rte-pci-device-details-from-rte-device-in-dpdk-18-08
 	if (lcp->worker.kni.is_master) {
 		struct rte_kni_ops ops;
 		struct rte_eth_dev_info dev_info;
+		struct rte_bus *bus;
+		struct rte_pci_device *pci_dev;
 
 		memset(&dev_info, 0, sizeof(dev_info));
 		rte_eth_dev_info_get(port, &dev_info);
-		conf.addr = dev_info.pci_dev->addr;
-		conf.id = dev_info.pci_dev->id;
+		if (dev_info.device)
+    		bus = rte_bus_find_by_device(dev_info.device);
+		if (bus && !strcmp(bus->name, "pci")) {
+    		pci_dev = RTE_DEV_TO_PCI(dev_info.device);
+
+			conf.addr = pci_dev->addr;
+			conf.id = pci_dev->id;
+		}
 
 		memset(&ops, 0, sizeof(ops));
 		ops.port_id = port;
@@ -147,13 +160,16 @@ kni_change_mtu(uint8_t port_id, unsigned int new_mtu)
 
 	rte_memcpy(&conf, &port_conf, sizeof(conf));
 	/* Set new MTU */
-	if (new_mtu > RTE_ETHER_MAX_LEN)
-		conf.rxmode.jumbo_frame = 1;
-	else
-		conf.rxmode.jumbo_frame = 0;
+
+	// TODO: jumboframe offload seems broken
+	// if (new_mtu > RTE_ETHER_MAX_LEN)
+	// 	//conf.rxmode.jumbo_frame = 1;
+	// 	conf.rxmode.offloads |= DEV_RX_OFFLOAD_JUMBO_FRAME;
+	// else
+	// 	conf.rxmode.jumbo_frame = 0;
 
 	/* MTU + length of header + length of FCS = max pkt length */
-	conf.rxmode.max_rx_pkt_len =
+	conf.rxmode.mtu =
 	    new_mtu + KNI_ETHER_HEADER_SIZE + KNI_ETHER_FCS_SIZE;
 	ret = rte_eth_dev_configure(port_id, 1, 1, &conf);
 	if (ret < 0) {
