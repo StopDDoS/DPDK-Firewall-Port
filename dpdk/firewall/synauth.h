@@ -44,7 +44,7 @@
 struct synauth_ctx {
 	struct rollhash ip_wlst;
 	struct rollhash ip6_wlst;
-	EVP_CIPHER_CTX cipher;
+    EVP_CIPHER_CTX *cipher;
 	uint8_t key[CIPHER_KEY_SIZE];
 	uint64_t key_ttl;
 };

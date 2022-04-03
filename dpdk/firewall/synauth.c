@@ -86,8 +86,8 @@ rekey_context(struct synauth_ctx *ctx, uint64_t now)
 
 	/* TODO: check return codes */
 	keylen = sizeof(ctx->key);
-	EVP_EncryptUpdate(&ctx->cipher, ctx->key, &keylen, ctx->key, keylen);
-	EVP_EncryptInit(&ctx->cipher, CIPHER_ALGO, ctx->key, NULL);
+	EVP_EncryptUpdate(ctx->cipher, ctx->key, &keylen, ctx->key, keylen);
+	EVP_EncryptInit(ctx->cipher, CIPHER_ALGO, ctx->key, NULL);
 }
 
 static inline uint32_t
@@ -109,8 +109,8 @@ authenticate(struct synauth_ctx *ctx, void *data, size_t inlen)
 	}
 	/* XXX: check if EncryptUpdate handles negative sizes */
 	/* XXX: check return codes */
-	EVP_EncryptUpdate(&ctx->cipher, buf, &outlen, buf, sizeof(buf));
-	EVP_EncryptFinal(&ctx->cipher, buf + outlen, &outlen);
+	EVP_EncryptUpdate(ctx->cipher, buf, &outlen, buf, sizeof(buf));
+	EVP_EncryptFinal(ctx->cipher, buf + outlen, &outlen);
 
 	r = (uint32_t *)(&(buf[outlen - sizeof(uint32_t)]));
 
@@ -262,10 +262,10 @@ synauth_init(struct synauth_ctx *ctx)
 	}
 
 	/* Crypto context */
-	EVP_CIPHER_CTX_init(&ctx->cipher);
-	if (EVP_CIPHER_CTX_set_padding(&ctx->cipher, 0) != 1 ||
+	EVP_CIPHER_CTX_init(ctx->cipher);
+	if (EVP_CIPHER_CTX_set_padding(ctx->cipher, 0) != 1 ||
 	    RAND_bytes(ctx->key, sizeof(ctx->key)) != 1 ||
-	    EVP_EncryptInit(&ctx->cipher, CIPHER_ALGO, ctx->key, NULL) != 1) {
+	    EVP_EncryptInit(ctx->cipher, CIPHER_ALGO, ctx->key, NULL) != 1) {
 		RTE_LOG(ERR, USER1, "Could not initialize cipher context.\n");
 		goto done;
 	}

@@ -294,13 +294,13 @@ struct mbuf_extra {
 #define PKT_INIT(m)						\
 	do {							\
 		(m)->packet_type = 0;				\
-		(m)->udata64 = 0;				\
+		*RTE_MBUF_DYNFIELD(m, meta_offset, uint64_t *) = 0; \
 	} while (0)
 
 #define PKT_FREE(m)						\
 	do {							\
 		(m)->packet_type = 0;				\
-		(m)->udata64 = 0;				\
+		*RTE_MBUF_DYNFIELD(m, meta_offset, uint64_t *) = 0; \
 		rte_pktmbuf_free((m));				\
 	} while (0)
 

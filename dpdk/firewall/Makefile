@@ -35,10 +35,10 @@ CFLAGS += -DMAX_NIC_PORTS=6 -DMAX_LCORES=16
 CFLAGS += -DMAX_IO_LCORES=8 -DMAX_WORKER_LCORES=8
 CFLAGS += -D_GNU_SOURCE -D_LGPL_SOURCE
 
-LDFLAGS += -lconfig
+LDFLAGS += -lconfig -lpthread
 LDFLAGS += -lurcu-qsbr
-LDFLAGS += -lcrypto
-LDFLAGS += -lrte -lr -lrte_table -lrte_lpm -lrte_gso -lrte_metrics -lrte_mbuf -lrte_kvargs
+LDFLAGS += -lssl -lcrypto
+LDFLAGS += -lrte_table -lrte_lpm -lrte_gso -lrte_metrics -lrte_mbuf -lrte_kvargs
 
 ifeq ($(MAKECMDGOALS),static)
 # check for broken pkg-config
