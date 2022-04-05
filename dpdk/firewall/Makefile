@@ -5,7 +5,7 @@
 APP = firewall
 
 # all source are stored in SRCS-y
-SRCS-y := main.c strlcpy.c strlcat.c config.c init.c io.c runtime.c
+SRCS-y := mbuf_dynfield.c main.c strlcpy.c strlcat.c config.c init.c io.c runtime.c
 SRCS-y += worker.c firewall.c kni.c tap.c acl.c nat.c util.c
 SRCS-y += control.c arp.c iface.c packet.c frag.c synauth.c
 
@@ -38,7 +38,7 @@ CFLAGS += -D_GNU_SOURCE -D_LGPL_SOURCE
 LDFLAGS += -lconfig -lpthread
 LDFLAGS += -lurcu-qsbr
 LDFLAGS += -lssl -lcrypto
-LDFLAGS += -lrte_table -lrte_lpm -lrte_gso -lrte_metrics -lrte_mbuf -lrte_kvargs
+LDFLAGS += -lrte_table -lrte_lpm -lrte_gso -lrte_metrics -lrte_mbuf -lrte_kvargs -lrte_net_bond
 
 ifeq ($(MAKECMDGOALS),static)
 # check for broken pkg-config

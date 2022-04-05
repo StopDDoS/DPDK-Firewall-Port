@@ -74,6 +74,7 @@
 #include <rte_tcp.h>
 #include <rte_ether.h>
 #include <rte_hash_crc.h>
+#include <rte_jhash.h>
 
 /*
  * Address Resolution Protocol.
@@ -282,9 +283,9 @@ struct mbuf_extra {
 #define PKT_ETH_ADDR_SWAP(hdr)					\
 	do {							\
 		struct ether_addr addr;				\
-		ether_addr_copy(&hdr->s_addr, &addr);		\
-		ether_addr_copy(&hdr->d_addr, &hdr->s_addr);	\
-		ether_addr_copy(&addr, &hdr->d_addr);		\
+		rte_ether_addr_copy(&hdr->s_addr, &addr);		\
+		rte_ether_addr_copy(&hdr->d_addr, &hdr->s_addr);	\
+		rte_ether_addr_copy(&addr, &hdr->d_addr);		\
 	} while (0)
 
 /*

@@ -90,7 +90,7 @@ tap_create(const char *name, struct nic_cfg *nic)
 	}
 	/* Set the mac address of the tap interface */
 	ifr.ifr_hwaddr.sa_family = ARPHRD_ETHER;
-	ether_addr_copy(&nic->hwaddr,
+	rte_ether_addr_copy(&nic->hwaddr,
 	    (struct ether_addr *)&ifr.ifr_hwaddr.sa_data);
 	if ((ret = ioctl(fd, SIOCSIFHWADDR, &ifr) < 0)) {
 		goto done;

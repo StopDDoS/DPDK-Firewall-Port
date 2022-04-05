@@ -118,7 +118,7 @@ kni_alloc_port(uint8_t port, struct lc_cfg *lcp)
 	/* Set the mac address */
 	strlcpy(ifr.ifr_name, conf.name, IFNAMSIZ);
 	ifr.ifr_hwaddr.sa_family = ARPHRD_ETHER;
-	ether_addr_copy(
+	rte_ether_addr_copy(
 	    &nic->hwaddr, (struct ether_addr *)&ifr.ifr_hwaddr.sa_data);
 	if ((ret = ioctl(sock, SIOCSIFHWADDR, &ifr) < 0)) {
 		goto done;

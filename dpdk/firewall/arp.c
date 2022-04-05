@@ -106,7 +106,7 @@ update_from_arp(const struct rte_mbuf *m, const uint8_t *data, uint64_t now)
 		gwa->update_ts = now;
 		return NULL;
 	}
-	ether_addr_copy(&ea->arp_sha, &gwa->mac);
+	rte_ether_addr_copy(&ea->arp_sha, &gwa->mac);
 	print_mac_addr((uint8_t *)&gwa->mac, gwa->ip, m->port);
 
 	return gwa;
@@ -134,7 +134,7 @@ update_from_ip(const struct rte_mbuf *m, const uint8_t *data, uint64_t now)
 		gwa->update_ts = now;
 		return NULL;
 	}
-	ether_addr_copy(&eh->s_addr, &gwa->mac);
+	rte_ether_addr_copy(&eh->s_addr, &gwa->mac);
 	print_mac_addr((uint8_t *)&gwa->mac, gwa->ip, m->port);
 
 	return gwa;
@@ -162,8 +162,8 @@ create_request(in_addr_t ip, uint16_t vlan)
 	ah = (struct ether_arp *)(data + sizeof(struct ether_hdr));
 
 	/* Ethernet header */
-	ether_addr_copy(&cfg.ifaces[0].hwaddr, &eh->s_addr);
-	ether_addr_copy(&brd, &eh->d_addr);
+	rte_ether_addr_copy(&cfg.ifaces[0].hwaddr, &eh->s_addr);
+	rte_ether_addr_copy(&brd, &eh->d_addr);
 	eh->ether_type = _htons(ETHER_TYPE_ARP);
 
 	/* ARP header */

@@ -35,7 +35,7 @@
 #include "runtime.h"
 #include "packet.h"
 
-inline uint32_t
+uint32_t
 pkt_type(struct rte_mbuf *m)
 {
 	const uint8_t *payload;
@@ -155,8 +155,8 @@ pkt_dump(const struct rte_mbuf *m, const char *prefix)
 		inet_ntop(AF_INET6, &ip->dst_addr, daddr, sizeof(daddr));
 		proto = ip->proto;
 	}
-	ether_format_addr(smac, sizeof(smac), &eh->s_addr);
-	ether_format_addr(dmac, sizeof(dmac), &eh->d_addr);
+	rte_ether_format_addr(smac, sizeof(smac), &eh->s_addr);
+	rte_ether_format_addr(dmac, sizeof(dmac), &eh->d_addr);
 
 	RTE_LOG(DEBUG, USER1,
 	    "%s iface: %d. vlan: %u, etype: 0x%02x%02x, "

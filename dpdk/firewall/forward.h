@@ -81,8 +81,8 @@ __attribute__((always_inline))
 			return;
 		}
 
-		ether_addr_copy(&eh->d_addr, &eh->s_addr);
-		ether_addr_copy(ea, &eh->d_addr);
+		rte_ether_addr_copy(&eh->d_addr, &eh->s_addr);
+		rte_ether_addr_copy(ea, &eh->d_addr);
 	}
 
 	port = m->port;

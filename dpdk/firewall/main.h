@@ -65,18 +65,8 @@ struct rte_fixed_ether_hdr {
 	unsigned short int ether_type; /**< Frame type. */
 } __rte_aligned(2);
 
-
-#ifndef MBUF_DYNFIELD_META
-const struct rte_mbuf_dynfield rte_mbuf_dynfield_metadata = {
-.name = "rte_mbuf_dynfield_metadata",
-.size = sizeof(uint64_t),
-.align = __alignof__(uint64_t),
-.flags = 0,
-};
-
-int meta_offset = 0;
-#define MBUF_DYNFIELD_META 1
-#endif
+extern int meta_offset;
+extern struct rte_mbuf_dynfield rte_mbuf_dynfield_metadata;
 
 /* Processor sockets */
 #ifndef MAX_SOCKETS

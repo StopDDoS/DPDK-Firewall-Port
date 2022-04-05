@@ -103,7 +103,7 @@ rt_refresh_gws(struct rt_ctx *ctx)
 	for (i = 0; i < cfg.n_igws; i++) {
 		if (memcmp(&cfg.igws[i].mac, &macs[i],
 		    sizeof(struct ether_addr))) {
-			ether_addr_copy(&cfg.igws[i].mac, &macs[i]);
+			rte_ether_addr_copy(&cfg.igws[i].mac, &macs[i]);
 		}
 		if (memcmp(&macs[i], &nullea, sizeof(nullea)) != 0) {
 			n_gws++;
@@ -116,7 +116,7 @@ rt_refresh_gws(struct rt_ctx *ctx)
 	for (i = 0; i < cfg.n_ogws; i++) {
 		if (memcmp(&cfg.ogws[i].mac, &macs[i],
 		    sizeof(struct ether_addr))) {
-			ether_addr_copy(&cfg.ogws[i].mac, &macs[i]);
+			rte_ether_addr_copy(&cfg.ogws[i].mac, &macs[i]);
 		}
 		if (memcmp(&macs[i], &nullea, sizeof(nullea)) != 0) {
 			n_gws++;
