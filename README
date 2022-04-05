@@ -1,4 +1,4 @@
-Just prototyping some network stuff.
+Just prototyping some network stuff. Ported to DPDK 21 by Luc/Wqrld
 
 He be dragons: the code has not seen any kind of review (security or other).
 
@@ -8,7 +8,6 @@ requirements for compilation:
 - liburcu-dev
 - libconfig-dev
 
-- dpdk
+- dpdk 21
 
-
-program does not compile for dpdk-21 at the moment, beware
+The program compiles and links correctly, functioning is nog guaranteed in any way.
