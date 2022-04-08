@@ -42,6 +42,7 @@
 #include <rte_launch.h>
 #include <rte_memory.h>
 #include <rte_log.h>
+#include <rte_errno.h>
 
 #include "main.h"
 
@@ -106,12 +107,13 @@ install_signal_handlers(void)
 
 int main(int argc, char *argv[])
 {
+	fprintf(stdout, "registering dynfield");
 	meta_offset = rte_mbuf_dynfield_register(&rte_mbuf_dynfield_metadata);
 
 	// Negative offset is an error
 	if (meta_offset < 0)
 	{
-		printf("could not register metadata dynfield.");
+		fprintf(stderr, "could not register metadata dynfield. [%s]\n", rte_strerror(rte_errno));
 	}
 
 	uint32_t lcore;

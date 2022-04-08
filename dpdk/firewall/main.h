@@ -70,7 +70,7 @@ extern struct rte_mbuf_dynfield rte_mbuf_dynfield_metadata;
 
 /* Processor sockets */
 #ifndef MAX_SOCKETS
-#define MAX_SOCKETS 2
+#define MAX_SOCKETS 1
 #endif
 
 /* Logical cores */

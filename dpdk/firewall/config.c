@@ -699,7 +699,7 @@ cfg_parse_file(const char *path)
 	result = -1;
 	config_init(&_cfg);
 	if (!config_read_file(&_cfg, path)) {
-		RTE_LOG(DEBUG, USER1, "%s:%d - %s\n", config_error_file(&_cfg),
+		RTE_LOG(ERR, USER1, "%s:%d - %s\n", config_error_file(&_cfg),
 		    config_error_line(&_cfg), config_error_text(&_cfg));
 		goto done;
 	}

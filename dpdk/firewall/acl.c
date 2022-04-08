@@ -768,7 +768,7 @@ setup_acl(struct zone_cfg *zone, struct rte_acl_rule *base, uint32_t n_acls,
 	snprintf(name, sizeof(name), "%s_%u_%u", zone->name, zone->version,
 	    sockid);
 
-	RTE_LOG(DEBUG, USER1, "Building ACL trie: %s\n", name);
+	RTE_LOG(ERR, USER1, "Building ACL trie: %s\n", name);
 
 	acl_param.name = name;
 	acl_param.socket_id = sockid;
@@ -877,11 +877,11 @@ parse_ip_acls(struct zone_cfg *zone)
 	    RULE_PATH, zone->name);
 	if ((ret = parse_acls(path, &acl_basep, &n_acl, sizeof(struct acl_rule),
 	    parse_cb_ipvlan_rule)) != 0) {
-		RTE_LOG(DEBUG, ACL, "Could not open ACL configuration file for "
+		RTE_LOG(ERR, ACL, "Could not open ACL configuration file for "
 		    "zone %s (%s): %s.\n", zone->name, path, strerror(errno));
 		goto done;
 	}
-	RTE_LOG(DEBUG, ACL, "Loaded %u IPv4 ACL entries:\n", n_acl);
+	RTE_LOG(ERR, ACL, "Loaded %u IPv4 ACL entries:\n", n_acl);
 
 	init_ip_count((struct acl_rule *)acl_basep, n_acl, zone);
 	dump_ip_rules((struct acl_rule *)acl_basep, n_acl, 1);

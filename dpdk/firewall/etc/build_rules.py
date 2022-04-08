@@ -72,8 +72,8 @@ ICMP_ADDRESS        = 17
 ICMP_ADDRESSREPLY   = 18
 
 PORT_RANGE_WILDCARD = '0:65535'
-IP_NET_WILDCARD = unicode('0.0.0.0/0')
-IP6_NET_WILDCARD = unicode('::0/0')
+IP_NET_WILDCARD = str('0.0.0.0/0')
+IP6_NET_WILDCARD = str('::0/0')
 PORT_DELIM = ':'
 
 ZONE_PATH = 'zones'
@@ -93,8 +93,8 @@ class IPHeader(object):
         dnet = self._net_wildcard(dnet)
 
         self.proto = proto
-        self.snet = ipaddress.ip_network(unicode(snet))
-        self.dnet = ipaddress.ip_network(unicode(dnet))
+        self.snet = ipaddress.ip_network(str(snet))
+        self.dnet = ipaddress.ip_network(str(dnet))
 
     def _net_wildcard(self, net):
         if self.family == 'ip':
@@ -422,12 +422,12 @@ class RuleSerializer(object):
                 print("Could not create rules directory: {}".format(ose))
                 sys.exit(1)
 
-        ip_acl = open(ip_acl_p, 'wb')
-        ip_acl_rev = open(ip_acl_rev_p, 'wb')
-        ip6_acl = open(ip6_acl_p, 'wb')
-        ip6_acl_rev = open(ip6_acl_rev_p, 'wb')
-        ip_nat = open(ip_nat_p, 'wb')
-        ip_nat_rev = open(ip_nat_rev_p, 'wb')
+        ip_acl = open(ip_acl_p, 'w')
+        ip_acl_rev = open(ip_acl_rev_p, 'w')
+        ip6_acl = open(ip6_acl_p, 'w')
+        ip6_acl_rev = open(ip6_acl_rev_p, 'w')
+        ip_nat = open(ip_nat_p, 'w')
+        ip_nat_rev = open(ip_nat_rev_p, 'w')
 
         self.rule_files = {
             'ip_acl': {'orig': ip_acl, 'rev': ip_acl_rev},
@@ -451,8 +451,12 @@ class RuleSerializer(object):
     def write(self, rule):
         rule_formatter = self.get_formatter(rule)
         rule_file, rev_rule_file = self.get_rule_files(rule)
+        print(rule_formatter(rule).orig())
+        print(rule_file)
         rule_file.write(rule_formatter(rule).orig() + '\n')
         rev_rule_file.write(rule_formatter(rule).reply() + '\n')
+        rule_file.close()
+        rev_rule_file.close()
 
 
 class MatchContext(object):
@@ -646,8 +650,8 @@ class NFTRuleParser(object):
 
         trans_ip = rule_parts[rule_parts.index('dnat') + 1]
 
-        orig_ip = ipaddress.ip_network(unicode(orig_ip))
-        trans_ip = ipaddress.ip_network(unicode(trans_ip))
+        orig_ip = ipaddress.ip_network(str(orig_ip))
+        trans_ip = ipaddress.ip_network(str(trans_ip))
 
         if family == 'ip':
             self.ip_nat.append(DNATRule(orig_ip, trans_ip))
@@ -670,11 +674,13 @@ class NFTRuleParser(object):
         new_data = []
 
         for line in data:
+            line = line.decode('UTF-8')
             match = self.rule_re.match(line)
             if match and match.group('chain') == 'input':
                 new_data.append(line)
 
         for line in data:
+            line = line.decode('UTF-8')
             match = self.rule_re.match(line)
             if match and match.group('chain') != 'input':
                 new_data.append(line)
@@ -727,7 +733,8 @@ def main():
     rule_path = sys.argv[2]
 
     try:
-        config = cfg.Config(open(conf_path, 'rb').read())
+        content = open(conf_path, 'rb').read().decode('UTF-8')
+        config = cfg.Config(content)
     except (EnvironmentError,
             cfg.ParseException,
             cfg.ParseFatalException) as err:

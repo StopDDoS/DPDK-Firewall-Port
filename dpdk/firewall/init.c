@@ -90,20 +90,20 @@
 // REF https://stackoverflow.com/questions/63659514/how-dpdk-disable-crc-strip-header-split-ip-checksum-offload-and-jumbo
 struct rte_eth_conf port_conf = {
 	.rxmode = {
-		.mq_mode = ETH_MQ_RX_RSS,
-		.offloads = (
+		.mq_mode = ETH_MQ_TX_NONE,
+		//.offloads = (
 
 /*
 TODO: JUMBOFRAME offloading seems to be undefined, check!
 */
 //			DEV_RX_OFFLOAD_JUMBO_FRAME |
 
-			RTE_ETH_RX_OFFLOAD_IPV4_CKSUM |
+		//	RTE_ETH_RX_OFFLOAD_IPV4_CKSUM  // this one is needed
 		//	RTE_ETH_RX_OFFLOAD_VLAN_FILTER | 
-			RTE_ETH_RX_OFFLOAD_VLAN_STRIP
+		//	RTE_ETH_RX_OFFLOAD_VLAN_STRIP // This one is needed
 		//	DEV_RX_OFFLOAD_JUMBO_FRAME |
 		//	 DEV_RX_OFFLOAD_KEEP_CRC
-		),
+	//	),
 	//	.max_rx_pkt_len = RTE_ETHER_MAX_LEN,
 		.split_hdr_size = 0,
 		// .header_split = 0,	/**< Header Split disabled */
@@ -115,8 +115,8 @@ TODO: JUMBOFRAME offloading seems to be undefined, check!
 	},
 	.rx_adv_conf = {
 		.rss_conf = {
-			.rss_key = NULL,
-			.rss_hf = ETH_RSS_IP,
+			//.rss_key = NULL,
+			//.rss_hf = NULL, // was ETH_RSS_IP
 		},
 	},
 	.txmode = {
@@ -570,7 +570,7 @@ init_bond_slaves(uint8_t port)
 		txconf = &dev_info.default_txconf;
 
 		/* Enable VLAN offloading */
-		txconf->offloads |= RTE_ETH_TX_OFFLOAD_VLAN_INSERT;
+		//txconf->offloads |= RTE_ETH_TX_OFFLOAD_VLAN_INSERT;
 		//txconf->txq_flags &= ~ETH_TXQ_FLAGS_NOVLANOFFL;
 		ret = rte_eth_tx_queue_setup(
 		    slave,
@@ -676,7 +676,7 @@ init_ifaces(void)
 
 		/* Enable VLAN offloading */
 		//RTE_ETH_TX_OFFLOAD_VLAN_INSERT
-		txconf->offloads |= RTE_ETH_TX_OFFLOAD_VLAN_INSERT;
+		//txconf->offloads |= RTE_ETH_TX_OFFLOAD_VLAN_INSERT;
 
 		if (cfg.ifaces[port].flags & NIC_FLAG_TX_ON) {
 			cfg_lcore_for_nic_tx(port, &lcore);
