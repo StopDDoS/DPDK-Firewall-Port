@@ -262,11 +262,36 @@ synauth_init(struct synauth_ctx *ctx)
 	}
 
 	/* Crypto context */
-	EVP_CIPHER_CTX_init(ctx->cipher);
-	if (EVP_CIPHER_CTX_set_padding(ctx->cipher, 0) != 1 ||
-	    RAND_bytes(ctx->key, sizeof(ctx->key)) != 1 ||
-	    EVP_EncryptInit(ctx->cipher, CIPHER_ALGO, ctx->key, NULL) != 1) {
-		RTE_LOG(ERR, USER1, "Could not initialize cipher context.\n");
+
+	// Init openssl cipher
+	ctx->cipher = EVP_CIPHER_CTX_new();
+	if (ctx->cipher == NULL) {
+		LOG(ERR, USER1, "[SA] EVP_CIPHER_CTX_new() failed\n");
+		goto done;
+	}
+
+	// Re-Init openssl cipher CTX
+	if (EVP_CIPHER_CTX_init(ctx->cipher) == 0) {
+		LOG(ERR, USER1, "[SA] EVP_CIPHER_CTX_init() failed\n");
+		goto done;
+	}
+
+	// Set Padding to 0
+	if (EVP_CIPHER_CTX_set_padding(ctx->cipher, 0) == 0) {
+		LOG(ERR, USER1, "[SA] EVP_CIPHER_CTX_set_padding() failed\n");
+		goto done;
+	}
+
+
+	// run RAND_bytes to set the key
+	if (RAND_bytes(ctx->key, sizeof(ctx->key)) != 1) {
+		LOG(ERR, USER1, "[SA] RAND_bytes() failed\n");
+		goto done;
+	}
+
+	// Set the algorithm to CIPHER_ALGO
+	if (EVP_CipherInit_ex(ctx->cipher, CIPHER_ALGO, NULL, ctx->key, NULL, 1) == 0) {
+		LOG(ERR, USER1, "[SA] EVP_CipherInit_ex() failed\n");
 		goto done;
 	}
 	rc = 0;
