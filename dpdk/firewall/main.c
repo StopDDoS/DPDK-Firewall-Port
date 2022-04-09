@@ -107,15 +107,6 @@ install_signal_handlers(void)
 
 int main(int argc, char *argv[])
 {
-	fprintf(stdout, "registering dynfield");
-	meta_offset = rte_mbuf_dynfield_register(&rte_mbuf_dynfield_metadata);
-
-	// Negative offset is an error
-	if (meta_offset < 0)
-	{
-		fprintf(stderr, "could not register metadata dynfield. [%s]\n", rte_strerror(rte_errno));
-	}
-
 	uint32_t lcore;
 	int ret;
 
@@ -125,6 +116,16 @@ int main(int argc, char *argv[])
 		return -1;
 	argc -= ret;
 	argv += ret;
+
+	fprintf(stdout, "registering  dynfield %s\n", rte_mbuf_dynfield_metadata.name);
+	meta_offset = rte_mbuf_dynfield_register(&rte_mbuf_dynfield_metadata);
+
+	// Negative offset is an error
+	if (meta_offset < 0)
+	{
+		fprintf(stderr, "could not register metadata dynfield. [%d], [%s]\n", rte_errno, rte_strerror(rte_errno));
+		exit(1);
+	}
 
 	/* Parse configuration file */
 	if (argc < 2)
