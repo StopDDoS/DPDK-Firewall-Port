@@ -11,3 +11,13 @@ requirements for compilation:
 - dpdk 21
 
 The program compiles and links correctly, functioning is nog guaranteed in any way.
+
+Running:
+
+To run the program, you first need to edit the pipeline.conf and build the zones using the build_rules.py script in the etc folder. These are used for the firewall.
+
+Then, to run the code normally:
+build/firewall etc/pipeline.conf
+
+or with debug mode:
+build/firewall --log-level='.*,8' etc/pipeline.conf
