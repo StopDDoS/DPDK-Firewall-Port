@@ -4,13 +4,41 @@ He be dragons: the code has not seen any kind of review (security or other).
 
 requirements for compilation:
 
+apt:
 - openssl
 - liburcu-dev
 - libconfig-dev
+- libglib2.0-dev
+
+pip3:
+- pyelftools
+
 
 - dpdk 21
 
 The program compiles and links correctly, functioning is nog guaranteed in any way.
+
+
+Setting up the nic for dpdk:
+
+turn off your nic (eth1 as an example, this will disable ALL network connectivity):
+ifconfig eth1 down
+
+Binding your nic
+from a folder with a install of dpdk 21:
+usertools/dpdk-devbind --list
+
+note down your hardware id (ex 0000:00:13.0)
+
+load the uio_pci  generic driver if your current driver does not have dpdk support(eg virtio):
+modprobe uio_pci_generic
+
+Bind your nic to the dpdk driver: 
+usertools/dpdk-devbind.py --bind=uio_pci_generic 0000:00:13.0
+
+and finally assign 1GB of hugepages
+./usertools/dpdk-hugepages.py --setup 1G
+
 
 Running:
 
