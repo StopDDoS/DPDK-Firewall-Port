@@ -422,12 +422,12 @@ class RuleSerializer(object):
                 print("Could not create rules directory: {}".format(ose))
                 sys.exit(1)
 
-        ip_acl = open(ip_acl_p, 'w')
-        ip_acl_rev = open(ip_acl_rev_p, 'w')
-        ip6_acl = open(ip6_acl_p, 'w')
-        ip6_acl_rev = open(ip6_acl_rev_p, 'w')
-        ip_nat = open(ip_nat_p, 'w')
-        ip_nat_rev = open(ip_nat_rev_p, 'w')
+        ip_acl = open(ip_acl_p, 'w', 1)
+        ip_acl_rev = open(ip_acl_rev_p, 'w', 1)
+        ip6_acl = open(ip6_acl_p, 'w', 1)
+        ip6_acl_rev = open(ip6_acl_rev_p, 'w', 1)
+        ip_nat = open(ip_nat_p, 'w', 1)
+        ip_nat_rev = open(ip_nat_rev_p, 'w', 1)
 
         self.rule_files = {
             'ip_acl': {'orig': ip_acl, 'rev': ip_acl_rev},
@@ -455,6 +455,9 @@ class RuleSerializer(object):
         print(rule_file)
         rule_file.write(rule_formatter(rule).orig() + '\n')
         rev_rule_file.write(rule_formatter(rule).reply() + '\n')
+
+    def close(self, rule):
+        rule_file, rev_rule_file = self.get_rule_files(rule)
         rule_file.close()
         rev_rule_file.close()
 
